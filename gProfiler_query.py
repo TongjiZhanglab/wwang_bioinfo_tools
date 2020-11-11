@@ -8,7 +8,7 @@ def load_gmt(gmt_file):
     gmt = {}
     with open(gmt_file) as fhd:
         for line in fhd:
-            line = line.strip().split()
+            line = line.strip().split('\t')
             gmt[line[0]] = set(line[2:])
     return gmt
 
@@ -36,7 +36,7 @@ def gProfile_query(query_gene, gmt, output_file, gene_to_symbol, output_symbol_f
              'query_size', 'intersection_size', 'effective_domain_size',
              'intersections'))
         for result in response['result']:
-            intersections = gmt[result['native']] & query_genes
+            intersections = gmt[result['native']] & query_gene
             row = (result['source'], result['name'], result['native'],
                    result['p_value'], -np.log10(result['p_value']),
                    result['term_size'], result['query_size'],

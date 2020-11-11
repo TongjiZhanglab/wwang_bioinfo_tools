@@ -16,8 +16,8 @@ import os, sys
 import subprocess
 from distutils.spawn import find_executable
 
-scripy_name = os.path.basename(sys.argv[0])
-USAGE = f'{scripy_name} <name> <bedfile> <datapoints> <strand> <bigwigfiles+>'
+script_name = os.path.basename(sys.argv[0])
+USAGE = f'{script_name} <name> <bedfile> <datapoints> <strand> <bigwigfiles+>'
 
 datapoints = int(sys.argv[3])
 strand_specific = int(sys.argv[4])
@@ -62,8 +62,8 @@ import os, sys
 import subprocess
 from distutils.spawn import find_executable
 
-scripy_name = os.path.basename(sys.argv[0])
-USAGE = f'{scripy_name} <name> <bedfile> <datapoints> <strand> <bigwigfiles+>'
+script_name = os.path.basename(sys.argv[0])
+USAGE = f'{script_name} <name> <bedfile> <datapoints> <strand> <bigwigfiles+>'
 
 datapoints = int(sys.argv[3])
 strand_specific = int(sys.argv[4])
@@ -108,15 +108,15 @@ with open(sys.argv[2]) as bedFhd:
 # Sub Funcitons
 # ------------------------------
 def prepare_optparser():
-    '''
+    '''\
     Prepare optparser object. New options will be added in thisfunction first.
     '''
-    scripy_name = os.path.basename(sys.argv[0])
-    usage = f'USAGE: {scripy_name} <-b bedFile> <-w bigWigFiles+> [-n name] [-p process] [-s datapoints] [-m model]'
+    script_name = os.path.basename(sys.argv[0])
+    usage = f'USAGE: {script_name} <-b bedFile> <-w bigWigFiles+> [-n name] [-p process] [-s datapoints] [-m model]'
     description = 'bigWigSignalCapture -- Capture signal form bigWigFiles.'
     
     # option processor
-    optparser = OptionParser(version=f'{scripy_name} 0.1',
+    optparser = OptionParser(version=f'{script_name} 0.1',
                              description=description,
                              usage=usage,
                              add_help_option=False)
@@ -163,10 +163,10 @@ def opt_validate(optparser):
                 f'Can not find the bigwig file: {options.bigWigFiles[i]}.\n')
             optparser.print_help()
             sys.exit(1)
+       options.bigWigFiles[i] = os.path.expanduser(options.bigWigFiles[i]) 
     
     if not os.path.isfile(options.bedFile):
-        sys.stdout.write(
-            f'Can not find the bigwig file: {options.bedFile}.\n'.format)
+        sys.stdout.write(f'Can not find the bigwig file: {options.bedFile}.\n')
         optparser.print_help()
         sys.exit(1)
     
@@ -201,7 +201,10 @@ def prepare_capture(options):
     # creat temp dirctory
     CMD = f'mkdir {options.name} && cd {options.name}\n'
     for i in range(len(options.bigWigFiles)):
-        CMD += f'ln -s ../{options.bigWigFiles[i]} .\n'
+        if options.bigWigFiles[i].startswith('/'):
+            CMD += f'ln -s {options.bigWigFiles[i]} .\n'
+        else:
+            CMD += f'ln -s ../{options.bigWigFiles[i]} .\n'
     os.system(CMD)
     # write temp bed files
     sub_sizes = int(len(bed) / options.process)
